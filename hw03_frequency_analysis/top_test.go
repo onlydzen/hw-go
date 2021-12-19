@@ -7,7 +7,7 @@ import (
 )
 
 // Change to true if needed.
-var taskWithAsteriskIsCompleted = false
+var taskWithAsteriskIsCompleted = true
 
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
@@ -78,5 +78,39 @@ func TestTop10(t *testing.T) {
 			}
 			require.Equal(t, expected, Top10(text))
 		}
+	})
+
+	t.Run("positive test with less then 10 unique words", func(t *testing.T) {
+		expected := []string{
+			"а",  // 3
+			"и",  // 3
+			"он", // 3
+			"ты", // 2
+		}
+		require.Equal(t, expected, Top10("и и и он он он а а а ты"))
+	})
+
+	t.Run("positive test contains non-English or non-Cyrillic words", func(t *testing.T) {
+		expected := []string{
+			"co-founder", // 1
+		}
+		require.Equal(t, expected, Top10("日本 co-founder! 日-本"))
+	})
+
+	t.Run("positive test contains incorrect sequence of hyphens and whitespaces", func(t *testing.T) {
+		expected := []string{
+			"f",          // 2
+			"co-founder", // 1
+		}
+		require.Equal(t, expected, Top10("- f- -f co-founder!"))
+	})
+
+	t.Run("positive test with one word written in different styles", func(t *testing.T) {
+		expected := []string{
+			"стоп",      // 7
+			"стоп-стоп", // 1
+			"стопстоп",  // 1
+		}
+		require.Equal(t, expected, Top10("Стоп, -стоп|стОп!, стоП,СТОП    `стоп`, стоп-, -, стоп-стоп, стопстоп "))
 	})
 }
